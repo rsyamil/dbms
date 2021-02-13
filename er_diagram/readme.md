@@ -30,12 +30,17 @@ Each staff hired at the firm must be designated to a position, that can be licen
 | `official_identification_type`   | Type of official real-life id provided, i.e. passport, driver's licence etc.|
 
 ## PATIENTS COMPONENT
-Each patient may have one or more documents generated for him/her over multiple visits. Each document can only belong to a patient. Examples of document are bite-wing scan, x-ray, dental charts etc.
+Each patient (up to ~100) may have one or more documents generated for him/her over multiple visits. Each document can only belong to a patient. Examples of document are bite-wing scan, x-ray, dental charts etc. Each patient can have zero, or at most one insurance provider on file. 
 
 | **DOCUMENT**      | Description| 
 | :-------------    |-----------|
 | `location`        | Location, path where the document is saved. Document may be of different types, i.e. pdf, tiff, jpg etc.|
 | `description`     | Details about the document.|
+
+| **INSURANCE_PROVIDER**      | Description| 
+| :-------------              |-----------|
+| `provider_id`               | Unique identifier for insurance providers.|
+| `address`                   | For invoicing and claim purposes.|
 
 ## RESERVATION COMPONENT
 The dental practice has N rooms that can be reserved for a visit. Assume that each visit can potentially require more than one room, each room is fully equipped for potentially different procedures and the rooms are labeled accordingly at the site. 
@@ -56,10 +61,18 @@ The dental practice has N rooms that can be reserved for a visit. Assume that ea
 
 To prevent overlapping reservations, the primary key for **RESERVATION** is a composite of `VISIT.visit_id`, `ROOM.room_id`, `RESERVATION.res_date`, `RESERVATION.res_start_time` and `RESERVATION.res_end_time`.
 
+## PROCEDURE COMPONENT
+Each patient may schedule only one procedure per visit to avoid complications. 
 
+| **PROCEDURE**        | Description| 
+| :-------------       |-----------|
+| `type`               | I.e. teeth cleaning, gum disease treatment, tooth extraction, whitening etc.|
+| `total_cost`         | Total cost for the procedure including materials, manpower, utilities etc.|
+| `total_duration`     | Useful to estimate duration of visit and duration of reservations.|
+| `qualified_position` | Qualified position to perform said procedure as per positions in `POSITION`.|
 
-
-
+## BILLING COMPONENT
+Each visit is tagged to a bill. Since each visit entity
 
 
 
