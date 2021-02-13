@@ -37,5 +37,36 @@ Each patient may have one or more documents generated for him/her over multiple 
 | `location`        | Location, path where the document is saved. Document may be of different types, i.e. pdf, tiff, jpg etc.|
 | `description`     | Details about the document.|
 
+## RESERVATION COMPONENT
+The dental practice has N rooms that can be reserved for a visit. Assume that each visit can potentially require more than one room, each room is fully equipped for potentially different procedures and the rooms are labeled accordingly at the site. 
+
+| **ROOM**          | Description| 
+| :-------------    |-----------|
+| `room_id`         | From one to N=8.|
+| `status`          | Can be one of "ready" (i.e. sanitized and prepared), "in_use" or "out_of_use".|
+| `type`            | Depends on the purpose of the room (i.e. operations, consultation).|
+
+| **RESERVATION**   | Description| 
+| :-------------    |-----------|
+| `visit_id`        | The id is only generated if the staff is available to see the patient, i.e. no overlap in time slot for the staff.|
+| `res_date`        | Reservation date, i.e. the date when the room will be used. Must be the same as `VISIT.visit_date`.|
+| `res_start_time`  | Reservation start time, i.e. the start time when the room will be used. At or after `VISIT.visit_start_time`.|
+| `res_end_time`    | Reservation end time, i.e. the end time when the room will be used. At or before `VISIT.visit_end_time`.|
+| `description`     | Optional, used to denote if special tools are needed in the room etc.|
+
+To prevent overlapping reservations, the primary key for **RESERVATION** is a composite of `VISIT.visit_id`, `ROOM.room_id`, `RESERVATION.res_date`, `RESERVATION.res_start_time` and `RESERVATION.res_end_time`.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
