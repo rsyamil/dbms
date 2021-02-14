@@ -16,7 +16,7 @@ Each staff hired at the firm must be designated to a position, that can be licen
 | `start_date`                  | Start date of employment.|
 | `end_date`                    | Leave Null if staff is still working at the practice.|
 | `availability`                | States of staff - can be "on leave", "sabbatical", "on strike" etc.|
-| `monthly_bonus_salary`        | Additional salary paid to staff on top of the base salary, i.e. `POSITION.position_monthly_salary`. This depends on the hiring agreement, staff experience etc.|
+| `monthly_total_salary`        | Total salary paid to staff including the base salary, i.e. `POSITION.position_monthly_salary`. This depends on the hiring agreement, staff experience etc.|
 
 | **CERTIFICATION**             | Description| 
 | :-------------                |-----------|
@@ -42,8 +42,12 @@ Each patient (up to ~100) may have one or more documents generated for him/her o
 | `provider_id`               | Unique identifier for insurance providers.|
 | `address`                   | For invoicing and claim purposes.|
 
+| **PATIENT**       | Description| 
+| :-------------    |-----------|
+| `states`          | Either one of "contacted", "scheduled", "recently visited", "up for next visit" or "dormant".|
+
 ## RESERVATION COMPONENT
-The dental practice has N rooms that can be reserved for a visit. Assume that each visit can potentially require more than one room, each room is fully equipped for potentially different procedures and the rooms are labeled accordingly at the site. 
+The dental practice has N rooms that can be reserved for a visit. Assume that each visit can potentially require no more than one room, each room is fully equipped for potentially different procedures and the rooms are labeled accordingly at the site. 
 
 | **ROOM**          | Description| 
 | :-------------    |-----------|
@@ -53,28 +57,58 @@ The dental practice has N rooms that can be reserved for a visit. Assume that ea
 
 | **RESERVATION**   | Description| 
 | :-------------    |-----------|
-| `visit_id`        | The id is only generated if the staff is available to see the patient, i.e. no overlap in time slot for the staff.|
+| `reservation_id`  | The id is only generated if there is no overlap in time slot for the staff (i.e. enabling `visit_id` to be generated) and room.|
 | `res_date`        | Reservation date, i.e. the date when the room will be used. Must be the same as `VISIT.visit_date`.|
 | `res_start_time`  | Reservation start time, i.e. the start time when the room will be used. At or after `VISIT.visit_start_time`.|
 | `res_end_time`    | Reservation end time, i.e. the end time when the room will be used. At or before `VISIT.visit_end_time`.|
 | `description`     | Optional, used to denote if special tools are needed in the room etc.|
 
-To prevent overlapping reservations, the primary key for **RESERVATION** is a composite of `VISIT.visit_id`, `ROOM.room_id`, `RESERVATION.res_date`, `RESERVATION.res_start_time` and `RESERVATION.res_end_time`.
+In next iteration, needs to improve to prevent overlapping reservations.
 
 ## PROCEDURE COMPONENT
-Each patient may schedule only one procedure per visit to avoid complications. 
+Each patient may schedule only one procedure per visit to avoid health complications. For practical bookkeeping, if a patient wishes to schedule multiple procedures in a day, another `VISIT` entity instance can be generated for the same day with different start and end times. 
 
 | **PROCEDURE**        | Description| 
 | :-------------       |-----------|
-| `type`               | I.e. teeth cleaning, gum disease treatment, tooth extraction, whitening etc.|
+| `type`               | I.e. teeth cleaning, gum disease treatment, tooth extraction, whitening etc. Note that general consultation or routine check-up is also considered a procedure!|
 | `total_cost`         | Total cost for the procedure including materials, manpower, utilities etc.|
 | `total_duration`     | Useful to estimate duration of visit and duration of reservations.|
 | `qualified_position` | Qualified position to perform said procedure as per positions in `POSITION`.|
 
 ## BILLING COMPONENT
-Each visit is tagged to a bill. Since each visit entity
+Each `VISIT` instance generates a `BILL` instance and only one comprehensive bill. Each bill is unique to a visit. The bill can be paid through multiple instances of `PAYMENT` of different methods (i.e. through insurance and cash). `INVOICE` instance is generated to request payment from either provider or patient and results in a `PAYMENT` instance.
+
+| **BILL**                  | Description| 
+| :-------------            |-----------|
+| `visit_id`                | References `VISIT` so necessary information can be found when generating or printing bills for patients.|
+| `bill_date`               | Date when the bill is generated.|
+| `total_charged`           | The total charged to patient, includes `PROCEDURE.total_cost`, medicine, local taxes, fees etc. In next iteration, need to add itemized billing.|
+| `total_paid_patient`      | The total amount paid by patients and is derived/updated from summing `PAYMENT.total_paid` instances where `PAYMENT.method` is patient.|
+| `total_paid_insurance`    | The total amount paid by insurance and is derived/updated from summing `PAYMENT.total_paid` instances where `PAYMENT.method` is insurance provider.|
+| `due_date`                | Generally a month from `bill_date` but may be adjusted on case-to-case basis as noted in `notes`.|
+
+| **INVOICE**       | Description| 
+| :-------------    |-----------|
+| `method`          | Invoice can be sent to `INSURANCE_PROVIDER` or `PATIENT`.|
+| `address`         | Address of entity being billed. This is kept separate from the address of `INSURANCE_PROVIDER` or `PATIENT` so we can keep historical record.|
+| `total_requested` | Depends on `PATIENT.coverage_type` and `PATIENT.amount_of_coverage` if requesting from `INSURANCE_PROVIDER`. The remaining balance is invoiced to `PATIENT`. If `PATIENT.provider_id` and `PATIENT.subscriber_id` are NULL, then full amount is invoiced to `PATIENT`.|
+
+| **PAYMENT**       | Description| 
+| :-------------    |-----------|
+| `bill_id`         | Multiple payments can be made to settle a bill.|
+| `payer_id`        | Entity instance paying for the bill, can be a bank representing the provider, anyone related to patient or patient him/her/themself.|
+| `payment_mode`    | Cheque, cash, bitcoins etc.|
 
 
+
+# BUSINESS REQUIREMENTS
+This section highlights how the conceptual database is designed to meet the needs of the dental practice:
+
+| **REQUIREMENTS**               | Description| 
+| :-------------                 |-----------|
+| Tracking license expiry        | Query `CERTIFICATION` table and specify dates for `CERTIFICATION.license_expiry_date`.|
+| View daily scheduled visits    | Query `VISIT` table and specify dates for `VISIT.visit_date`.|
+| View daily billable income     | Query `BILL` table and specify dates for `BILL.bill_date`. Then project out `BILL.total_charged` and take the sum.|
 
 
 
