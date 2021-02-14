@@ -83,8 +83,8 @@ Each `VISIT` instance generates a `BILL` instance and only one comprehensive bil
 | `visit_id`                | References `VISIT` so necessary information can be found when generating or printing bills for patients.|
 | `bill_date`               | Date when the bill is generated.|
 | `total_charged`           | The total charged to patient, includes `PROCEDURE.total_cost`, medicine, local taxes, fees etc. In next iteration, need to add itemized billing.|
-| `total_paid_patient`      | The total amount paid by patients and is derived/updated from summing `PAYMENT.total_paid` instances where `PAYMENT.method` is patient.|
-| `total_paid_insurance`    | The total amount paid by insurance and is derived/updated from summing `PAYMENT.total_paid` instances where `PAYMENT.method` is insurance provider.|
+| `total_paid_patient`      | The total amount paid by patients and is derived/updated from summing `PAYMENT.total_paid` instances where `PAYMENT.payment_mode` is patient for this particular `bill_id`.|
+| `total_paid_insurance`    | The total amount paid by insurance and is derived/updated from summing `PAYMENT.total_paid` instances where `PAYMENT.payment_mode` is insurance provider for this particular `bill_id`.|
 | `due_date`                | Generally a month from `bill_date` but may be adjusted on case-to-case basis as noted in `notes`.|
 
 | **INVOICE**       | Description| 
@@ -95,7 +95,7 @@ Each `VISIT` instance generates a `BILL` instance and only one comprehensive bil
 
 | **PAYMENT**       | Description| 
 | :-------------    |-----------|
-| `bill_id`         | Multiple payments can be made to settle a bill.|
+| `bill_id`         | Multiple payments (each payment must be invoiced!) can be made to settle a bill.|
 | `payer_id`        | Entity instance paying for the bill, can be a bank representing the provider, anyone related to patient or patient him/her/themself.|
 | `payment_mode`    | Cheque, cash, bitcoins etc.|
 
@@ -103,6 +103,8 @@ Each `VISIT` instance generates a `BILL` instance and only one comprehensive bil
 For monthly recurring expenses such as for general supplies, utilities, cleaning and food/water supplies (each uniquely identified as `item_id`), assume that the dental practice is connected to a network of suppliers (identified by `supplier_id`) that supply items needed. Ideally `ITEM` table and `SUPPLIER` table should be synchronized with the suppliers (some items may run out of stock, change price or no longer made). 
 
 Building lease is part of `OPEX` where `SUPPLIER` will simply be the landlord and `ITEM` is the building. 
+
+`CERTIFICATION.renewal_fee` is considered as OPEX.
 
 | **ITEM**          | Description| 
 | :-------------    |-----------|
@@ -149,7 +151,7 @@ The ledger tracks all income and outpayments with a unique `transaction_id`. Eve
 | `date`                  | Date bank transaction occured.|
 | `account_id`            | Account to receive or pay from.|
 
-At least one of the foreign keys `capex_id`, `opex_id`, `payment_id` and `loan_installment_id` must have value. Expenses (i.e. `capex_id`, `opex_id` and `loan_installment_id`) has `amount` as NEGATIVE while incoming payments (i.e. `payment_id`) has `amount` as POSITIVE. In the next iteration, enforce EER on the transaction type as disjoint subtypes. 
+At most one of the foreign keys `capex_id`, `opex_id`, `payment_id` and `loan_installment_id` must have value. Expenses (i.e. `capex_id`, `opex_id` and `loan_installment_id`) has `amount` as NEGATIVE while incoming payments (i.e. `payment_id`) has `amount` as POSITIVE. In the next iteration, enforce EER on the transaction type as disjoint subtypes. 
 
 # BUSINESS REQUIREMENTS
 This section highlights how the conceptual database is designed to meet the needs of the dental practice:
