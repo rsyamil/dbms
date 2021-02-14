@@ -99,7 +99,57 @@ Each `VISIT` instance generates a `BILL` instance and only one comprehensive bil
 | `payer_id`        | Entity instance paying for the bill, can be a bank representing the provider, anyone related to patient or patient him/her/themself.|
 | `payment_mode`    | Cheque, cash, bitcoins etc.|
 
+## OPEX COMPONENT
+For monthly recurring expenses such as for general supplies, utilities, cleaning and food/water supplies (each uniquely identified as `item_id`), assume that the dental practice is connected to a network of suppliers (identified by `supplier_id`) that supply items needed. Ideally `ITEM` table and `SUPPLIER` table should be synchronized with the suppliers (some items may run out of stock, change price or no longer made). 
 
+Building lease is part of `OPEX` where `SUPPLIER` will simply be the landlord and `ITEM` is the building. 
+
+| **ITEM**          | Description| 
+| :-------------    |-----------|
+| `name`            | Name of items, i.e. electricity, Skittles, morphine, bleach, needles, scalpel, cleaning services etc.|
+| `price_per_unit`  | Price per unit in relevant measurement units, i.e. $/kWh, $/bag, $/dose, $/bottle, $/dozen, $/unit, $/hour etc.|
+
+| **OPEX**          | Description| 
+| :-------------    |-----------|
+| `item_id`         | Identifier for item. The same `ITEM` may be purchased from different `SUPPLIER`.|
+| `supplier_id`     | Identifier for supplier, assume that we have check for which `SUPPLIER` can supply what `ITEM` needed before any instance of `OPEX` is generated.|
+| `total_cost`      | Total cost of this opex expense, i.e. `OPEX.quantity`x`ITEM.price_per_unit`.|
+| `quantity`        | Quantity needed for a month.|
+| `location`        | Location of files or contracts (i.e. pdf) saved.|
+
+## CAPEX COMPONENT
+For one-off (non-regular) payments for purchases from unique vendors. For big-ticket items such as furniture, dental equipment, software (for scheduling, billing etc), staff training etc.
+
+| **CAPEX**         | Description| 
+| :-------------    |-----------|
+| `warranty_expiry` | Warranty expiration date for the item purchased.|
+| `location`        | Location of files or contracts (i.e. pdf) saved.|
+
+## LOAN COMPONENT
+For loans taken by the practice, can be for general loan, auto-loan, mortgage etc. Multiple instances of `LOAN_INSTALLMENT` may be generated to capture past, current and future payments (which can be determined by the `LOAN_INSTALLMENT.payment_due_date`. Paid installments can be found as an instance in the `TRANSACTION` table. 
+
+| **LOAN**             | Description| 
+| :-------------       |-----------|
+| `loan_type`          | One of "general", "mortgage", "vehicle", "holiday" etc.|
+| `payment_due_date`   | When monthly payment is due, i.e. day of month.|
+| `term_duration`      | How many months must the installments be paid for, i.e. 10 years = 120 months|
+| `location`           | Location of files or contracts (i.e. pdf) saved.|
+
+| **LOAN_INSTALLMENT**    | Description| 
+| :-------------          |-----------|
+| `amount`                | Monthly payment amount.|
+| `payment_due_date`      | When monthly payment is due, i.e. day of month of year.|
+
+## LEDGER COMPONENT
+The ledger tracks all income and outpayments with a unique `transaction_id`. Every income and payments must have a `transaction_id` that verifies money has been received or paid into or from a company bank account. 
+
+| **TRANSACTION**         | Description| 
+| :-------------          |-----------|
+| `amount`                | Amount transacted.|
+| `date`                  | Date bank transaction occured.|
+| `account_id`            | Account to receive or pay from.|
+
+At least one of the foreign keys `capex_id`, `opex_id`, `payment_id` and `loan_installment_id` must have value. Expenses (i.e. `capex_id`, `opex_id` and `loan_installment_id`) has `amount` as NEGATIVE while incoming payments (i.e. `payment_id`) has `amount` as POSITIVE. In the next iteration, enforce EER on the transaction type as disjoint subtypes. 
 
 # BUSINESS REQUIREMENTS
 This section highlights how the conceptual database is designed to meet the needs of the dental practice:
@@ -109,6 +159,9 @@ This section highlights how the conceptual database is designed to meet the need
 | Tracking license expiry        | Query `CERTIFICATION` table and specify dates for `CERTIFICATION.license_expiry_date`.|
 | View daily scheduled visits    | Query `VISIT` table and specify dates for `VISIT.visit_date`.|
 | View daily billable income     | Query `BILL` table and specify dates for `BILL.bill_date`. Then project out `BILL.total_charged` and take the sum.|
+| View monthly income            | Monthly income is interpreted as payments received, not billable income. Query `TRANSACTION` table and specify dates for `TRANSACTION.date` where `TRANSACTION.payment_id` is NOT NULL. Then project out `TRANSACTION.amount` and take the sum.|
+| View monthly expenditure       | Query `TRANSACTION` table and specify dates for `TRANSACTION.date` where `TRANSACTION.capex_id`, `TRANSACTION.opex_id` or `TRANSACTION.loan_installment_id` is NOT NULL. Then project out `TRANSACTION.amount` and take the sum.|
+| View monthly net income        | From above, take income - expenditure|
 
 
 
