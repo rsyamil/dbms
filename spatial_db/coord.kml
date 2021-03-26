@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.0">
+<Document>
+<Style id="z1">
+<IconStyle><Icon><href>http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png</href></Icon></IconStyle>
+</Style>
+<Placemark><name>Home</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.284783540455,34.0283044718994</coordinates></Point>
+</Placemark>
+<Placemark><name>Trader Joes</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.284526923231,34.0261080579962</coordinates></Point>
+</Placemark>
+<Placemark><name>USC Health</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.288749144134,34.0251285463694</coordinates></Point>
+</Placemark>
+<Placemark><name>Viterbi Office</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.289272410851,34.0204775813768</coordinates></Point>
+</Placemark>
+<Placemark><name>History Museum</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.288649903908,34.0170527529244</coordinates></Point>
+</Placemark>
+<Placemark><name>Cookie Shop</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.278754823367,34.0145455224395</coordinates></Point>
+</Placemark>
+<Placemark><name>Spudnut Donut</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.278686411439,34.0252233397502</coordinates></Point>
+</Placemark>
+<Placemark><name>Hotdog Place</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.275199487592,34.0282853363413</coordinates></Point>
+</Placemark>
+<Placemark><name>Victorian House</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.285026742111,34.0301355494922</coordinates></Point>
+</Placemark>
+<Placemark><name>Himalayan House</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.294058357395,34.0258917431771</coordinates></Point>
+</Placemark>
+<Placemark><name>Oldest Tree</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.283372403804,34.014042337011</coordinates></Point>
+</Placemark>
+<Placemark><name>Library</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.286656436605,34.0187472241584</coordinates></Point>
+</Placemark>
+<Placemark><name>Running Track</name>
+<styleUrl>#z1</styleUrl><Point><coordinates>-118.288264772227,34.0224005719085</coordinates></Point>
+</Placemark>
+</Document></kml>
