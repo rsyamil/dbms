@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<title>OL</title>
+<script src="http://dev.openlayers.org/releases/OpenLayers-2.13.1/OpenLayers.js">
+</script>
+<style>
+#map {
+    width:400px;
+    height:400px;
+}
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+
+
+<script>
+// Homework 3, question 6 
+// JSFIDDLE LINK http://jsfiddle.net/mohdraza/gv6jw39p/40/: 
+console.log("mohdraza@usc.edu HW3 Q6");
+alert("mohdraza@usc.edu HW3 Q6");
+
+// coordinates of location
+var d = {"Home":[{"long":-118.284783540455, "lat":34.0283044718994}],
+						"Trader Joes":[{"long":-118.284526923231, "lat":34.0261080579962}],
+            "USC Health":[{"long":-118.288749144134, "lat":34.0251285463694}],
+            "Viterbi Office":[{"long":-118.289272410851, "lat":34.0204775813768}],
+            "History Museum":[{"long":-118.288649903908, "lat":34.0170527529244}],
+            "Cookie Shop":[{"long":-118.278754823367, "lat":34.0145455224395}],
+            "Spudnut Donut":[{"long":-118.278686411439, "lat":34.0252233397502}],
+            "Hotdog Place":[{"long":-118.275199487592, "lat":34.0282853363413}],
+            "Victorian House":[{"long":-118.285026742111, "lat":34.0301355494922}],
+            "Himalayan House":[{"long":-118.294058357395, "lat":34.0258917431771}],
+            "Oldest Tree":[{"long":-118.283372403804, "lat":34.014042337011}],
+            "Library":[{"long":-118.286656436605, "lat":34.0187472241584}],
+						"Running Track":[{"long":-118.288264772227, "lat":34.0224005719085}]};
+localStorage.setItem("myData",JSON.stringify(d));
+
+// fetch the stored data, just by supplying its key:
+var dataStored = JSON.parse(localStorage.getItem("myData"));
+// verify that we fetched our data correctly
+console.log(dataStored); 
+
+// iterate through our array [of points], like so:
+var a = dataStored;
+for(var indx in a) {
+	console.log(indx);
+  var temp = a[indx]
+  console.log(temp[0]["long"], temp[0]["lat"]);
+}
+
+// load and setup map layers
+initMap();
+
+for(var indx in a) {
+	console.log(indx);
+  var temp = a[indx]
+  addMarker(temp[0]["lat"], temp[0]["long"]); 
+}
+
+function initMap() {
+        map = new OpenLayers.Map('map');
+        basemap = new OpenLayers.Layer.OSM("Simple OSM Map");
+        map.addLayer(basemap);
+        markers = new OpenLayers.Layer.Markers("Markers");
+        map.addLayer(markers);
+        map.setCenter(
+            new OpenLayers.LonLat(-118.284783540455, 34.0283044718994).transform(
+                new OpenLayers.Projection("EPSG:4326"),
+                map.getProjectionObject()
+            ), 12
+        );
+}// initMap()
+
+function addMarker(latitude, longitude) {
+        var lonLat = new OpenLayers.LonLat(longitude, latitude)
+            .transform(
+                new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                map.getProjectionObject() // to Spherical Mercator Projection
+        );
+        var point = new OpenLayers.Marker(lonLat);
+        markers.addMarker(point);
+        map.setCenter(lonLat, 8);
+        //console.log(latitude + ", " + longitude);
+}// addMarker()
+
+</script>
+
+</body>
+
+</html>
